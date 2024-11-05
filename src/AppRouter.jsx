@@ -112,85 +112,152 @@ const Navigation = () => {
   const { isAuthenticated, logout } = useAuth();
   const navigate = useNavigate();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
 
   const handleLogout = () => {
     logout();
     navigate('/');
   };
 
-  const toggleMenu = () => {
-    setIsMenuOpen(!isMenuOpen);
-  };
-
   return (
-    <nav className="bg-white border-b border-blue-500 text-blue-500 py-4">
-      <div className="nav-container max-w-6xl mx-auto px-4 flex justify-between items-center">
-        <div className="nav-logo text-2xl font-bold">🖨️ Ezprints 2.0</div>
-        <div className="md:hidden">
-          <button onClick={toggleMenu} className="text-blue-500 focus:outline-none">
-            <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-            </svg>
-          </button>
-        </div>
-        <div className={`nav-links flex flex-col md:flex-row gap-6 mt-4 md:mt-0 ${isMenuOpen ? 'block' : 'hidden'} md:flex`}>
-          <Link 
-            to="/" 
-            className="px-4 py-2 hover:text-blue-700 transition-colors duration-200"
-          >
-            Home
-          </Link>
-          <Link 
-            to="/merge" 
-            className="px-4 py-2 hover:text-blue-700 transition-colors duration-200"
-          >
-            Merge PDFs
-          </Link>
-          <Link 
-            to="/convert" 
-            className="px-4 py-2 hover:text-blue-700 transition-colors duration-200"
-          >
-            Convert to PDF
-          </Link>
-          {isAuthenticated && (
-            <Link 
-              to="/admin" 
-              className="px-4 py-2 hover:text-blue-700 transition-colors duration-200"
-            >
-              Admin Panel
-            </Link>
-          )}
-          {isAuthenticated && (
+    <>
+      <nav 
+        className={`fixed w-full top-0 z-50 transition-all duration-500 ${
+          isScrolled 
+            ? 'bg-white/80 backdrop-blur-md shadow-lg' 
+            : 'bg-white'
+        }`}
+      >
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16 sm:h-20">
+            {/* Logo */}
+            <div className="flex-shrink-0">
+              <Link 
+                to="/" 
+                className="group flex items-center space-x-3 hover:opacity-90 transition-all duration-300"
+              >
+                <div className="relative">
+                  
+                  <div className="absolute -bottom-1 left-0 w-full h-1 bg-gradient-to-r from-blue-400 to-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 rounded-full"></div>
+                </div>
+                <span className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-blue-600 via-blue-500 to-blue-400 bg-clip-text text-transparent">
+                  Ezprints 2.0
+                </span>
+              </Link>
+            </div>
+
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-1">
+              {[
+                { to: "/", label: "Home", icon: "🏠" },
+                { to: "/merge", label: "Merge PDFs", icon: "🔄" },
+                { to: "/convert", label: "Convert to PDF", icon: "📄" },
+                isAuthenticated && { to: "/admin", label: "Admin Panel", icon: "⚙️" }
+              ].filter(Boolean).map((link) => (
+                <Link 
+                  key={link.to}
+                  to={link.to} 
+                  className="group relative px-4 py-2 text-gray-600 hover:text-blue-600 font-medium rounded-md transition-all duration-200"
+                >
+                  <span className="relative z-10 flex items-center space-x-1">
+                    <span className="text-sm opacity-70 group-hover:opacity-100">{link.icon}</span>
+                    <span>{link.label}</span>
+                  </span>
+                  <div className="absolute inset-0 h-full w-full bg-blue-50 rounded-md opacity-0 group-hover:opacity-100 transition-all duration-200"></div>
+                  <div className="absolute bottom-0 left-0 h-0.5 w-full bg-blue-400 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200"></div>
+                </Link>
+              ))}
+              
+              {isAuthenticated && (
+                <button
+                  onClick={handleLogout}
+                  className="ml-4 px-6 py-2 bg-gradient-to-r from-red-500 via-red-600 to-red-500 text-white rounded-full font-medium 
+                    shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 
+                    hover:bg-gradient-to-r hover:from-red-600 hover:via-red-700 hover:to-red-600 
+                    focus:outline-none focus:ring-2 focus:ring-red-400 focus:ring-opacity-50"
+                >
+                  Logout
+                </button>
+              )}
+            </div>
+
+            {/* Hamburger Menu Button */}
             <button
-              onClick={handleLogout}
-              className="px-4 py-2 bg-red-500 hover:bg-red-700 text-white font-bold rounded"
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="md:hidden group relative w-10 h-10 flex justify-center items-center rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              aria-label="Toggle Menu"
             >
-              Logout
+              <div className="relative flex-none w-6 h-5">
+                <span className={`hamburger-line top-0 ${isMenuOpen ? 'rotate-45 translate-y-2.5' : ''}`}></span>
+                <span className={`hamburger-line top-2 ${isMenuOpen ? 'opacity-0 translate-x-2' : ''}`}></span>
+                <span className={`hamburger-line top-4 ${isMenuOpen ? '-rotate-45 -translate-y-2.5' : ''}`}></span>
+              </div>
             </button>
-          )}
+          </div>
         </div>
-      </div>
-      {isMenuOpen && (
-        <div className="md:hidden bg-white border-t border-blue-500">
-          <div className="flex flex-col space-y-2 p-4">
-            <Link to="/" className="hover:text-blue-700">Home</Link>
-            <Link to="/merge" className="hover:text-blue-700">Merge PDFs</Link>
-            <Link to="/convert" className="hover:text-blue-700">Convert Word to PDF</Link>
-            {isAuthenticated && (
-              <Link to="/admin" className="hover:text-blue-700">Admin Panel</Link>
-            )}
+
+        {/* Mobile Menu */}
+        <div 
+          className={`md:hidden transition-all duration-300 ease-in-out ${
+            isMenuOpen 
+              ? 'opacity-100 translate-y-0 max-h-[400px]' 
+              : 'opacity-0 -translate-y-4 max-h-0'
+          } overflow-hidden`}
+        >
+          <div className="px-4 py-3 space-y-2 bg-white/90 backdrop-blur-md border-t border-gray-100 shadow-lg">
+            {[
+              { to: "/", label: "Home", icon: "🏠" },
+              { to: "/merge", label: "Merge PDFs", icon: "🔄" },
+              { to: "/convert", label: "Convert to PDF", icon: "📄" },
+              isAuthenticated && { to: "/admin", label: "Admin Panel", icon: "⚙️" }
+            ].filter(Boolean).map((link) => (
+              <Link
+                key={link.to}
+                to={link.to}
+                onClick={() => setIsMenuOpen(false)}
+                className="flex items-center space-x-3 px-4 py-3 rounded-xl text-gray-600 hover:text-blue-600 hover:bg-blue-50/80 
+                  transition-all duration-200 group"
+              >
+                <span className="text-lg opacity-70 group-hover:opacity-100">{link.icon}</span>
+                <span className="font-medium">{link.label}</span>
+              </Link>
+            ))}
+            
             {isAuthenticated && (
               <button
-                onClick={handleLogout}
-                className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+                onClick={() => {
+                  handleLogout();
+                  setIsMenuOpen(false);
+                }}
+                className="w-full mt-2 px-4 py-3 bg-gradient-to-r from-red-500 via-red-600 to-red-500 text-white rounded-xl 
+                  font-medium shadow-md hover:shadow-lg transform hover:-translate-y-0.5 transition-all duration-200 
+                  hover:bg-gradient-to-r hover:from-red-600 hover:via-red-700 hover:to-red-600"
               >
-                Logout
+                <span className="flex items-center justify-center space-x-2">
+                  <span>🚪</span>
+                  <span>Logout</span>
+                </span>
               </button>
             )}
           </div>
         </div>
-      )}
-    </nav>
+      </nav>
+
+      {/* Overlay */}
+      <div 
+        className={`fixed inset-0 bg-black/20 backdrop-blur-sm md:hidden z-40 transition-opacity duration-300
+          ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible'}`}
+        onClick={() => setIsMenuOpen(false)}
+      ></div>
+    </>
   );
 };
 

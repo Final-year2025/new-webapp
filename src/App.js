@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { pinata } from './config';
 import { db } from './firebase-config';
-import { collection, addDoc, updateDoc, doc } from 'firebase/firestore';
+import { collection, addDoc, updateDoc, doc, getDoc } from 'firebase/firestore';
 import './tailwind.css';
 import { useLocation } from 'react-router-dom';
 
@@ -148,11 +148,15 @@ function App() {
           paymentStatus: 'completed'
         });
 
+        const docSnap = await getDoc(jobRef);
+        const jobData = docSnap.data();
+
         setSuccessJobDetails({
           ...printDetails,
           status: 'paid',
           paymentTimestamp,
-          paymentAmount
+          paymentAmount,
+          ipfsUrl: jobData.ipfsUrl
         });
 
         setShowPayment(false);
@@ -182,23 +186,107 @@ function App() {
   };
 
   const SuccessPage = ({ jobDetails }) => (
-    <div className="bg-green-100 p-6 rounded-lg shadow-md text-center">
-      <div className="text-5xl text-green-500">✓</div>
-      <h2 className="text-2xl font-bold my-4">Print Job Successfully Submitted!</h2>
-      <div className="text-left">
-        <p><strong>File Name:</strong> {jobDetails?.fileName}</p>
-        <p><strong>Copies:</strong> {jobDetails?.copies}</p>
-        <p><strong>Color Mode:</strong> {jobDetails?.colorMode}</p>
-        <p><strong>Paper Size:</strong> {jobDetails?.paperSize}</p>
-        <p><strong>Orientation:</strong> {jobDetails?.orientation}</p>
-        <p><strong>Double-sided:</strong> {jobDetails?.doubleSided ? 'Yes' : 'No'}</p>
-        <p><strong>Amount Paid:</strong> ₹{jobDetails?.paymentAmount}</p>
-        <p><strong>Submitted:</strong> {new Date(jobDetails?.timestamp).toLocaleString()}</p>
-        <p><strong>Payment Completed:</strong> {new Date(jobDetails?.paymentTimestamp).toLocaleString()}</p>
+    <div className="max-w-4xl mx-auto bg-white rounded-xl shadow-2xl overflow-hidden m-4">
+      {/* Success Header */}
+      <div className="bg-gradient-to-r from-green-400 to-green-600 p-4 sm:p-8 text-center">
+        <div className="bg-white rounded-full w-16 h-16 sm:w-20 sm:h-20 mx-auto mb-4 flex items-center justify-center">
+          <div className="text-4xl sm:text-5xl text-green-500">✓</div>
+        </div>
+        <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2">Print Job Successfully Submitted!</h2>
+        <p className="text-sm sm:text-base text-green-100">Your document is ready for printing</p>
       </div>
-      <button onClick={() => setSuccessJobDetails(null)} className="bg-blue-500 text-white px-4 py-2 mt-4 rounded-md">
-        Submit Another Print Job
-      </button>
+
+      <div className="p-4 sm:p-8">
+        {/* Job Details Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6 mb-6 sm:mb-8 bg-gray-50 p-4 sm:p-6 rounded-xl">
+          <div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 border-b pb-2">Print Details</h3>
+            <div className="space-y-2 text-sm sm:text-base">
+              <p className="flex justify-between">
+                <span className="text-gray-600">File Name:</span>
+                <span className="font-medium">{jobDetails?.fileName}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-gray-600">Copies:</span>
+                <span className="font-medium">{jobDetails?.copies}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-gray-600">Color Mode:</span>
+                <span className="font-medium capitalize">{jobDetails?.colorMode}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-gray-600">Paper Size:</span>
+                <span className="font-medium uppercase">{jobDetails?.paperSize}</span>
+              </p>
+            </div>
+          </div>
+
+          <div>
+            <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 border-b pb-2">Order Details</h3>
+            <div className="space-y-2 text-sm sm:text-base">
+              <p className="flex justify-between">
+                <span className="text-gray-600">Orientation:</span>
+                <span className="font-medium capitalize">{jobDetails?.orientation}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-gray-600">Double-sided:</span>
+                <span className="font-medium">{jobDetails?.doubleSided ? 'Yes' : 'No'}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-gray-600">Amount Paid:</span>
+                <span className="font-medium text-green-600">₹{jobDetails?.paymentAmount}</span>
+              </p>
+              <p className="flex justify-between">
+                <span className="text-gray-600">Status:</span>
+                <span className="font-medium text-green-600">Paid</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* Timeline */}
+        <div className="mb-6 sm:mb-8 bg-gray-50 p-4 sm:p-6 rounded-xl">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 border-b pb-2">Order Timeline</h3>
+          <div className="space-y-3 sm:space-y-4 text-sm sm:text-base">
+            <div className="flex items-center">
+              <div className="flex-shrink-0 w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+              <p className="text-sm">
+                <span className="font-medium">Submitted:</span>{' '}
+                <span className="text-gray-600">{new Date(jobDetails?.timestamp).toLocaleString()}</span>
+              </p>
+            </div>
+            <div className="flex items-center">
+              <div className="flex-shrink-0 w-2 h-2 rounded-full bg-green-500 mr-3"></div>
+              <p className="text-sm">
+                <span className="font-medium">Payment Completed:</span>{' '}
+                <span className="text-gray-600">{new Date(jobDetails?.paymentTimestamp).toLocaleString()}</span>
+              </p>
+            </div>
+          </div>
+        </div>
+
+        {/* PDF Preview */}
+        <div className="mb-6 sm:mb-8">
+          <h3 className="text-base sm:text-lg font-semibold text-gray-700 mb-3 sm:mb-4 border-b pb-2">Document Preview</h3>
+          <div className="bg-gray-50 p-2 sm:p-4 rounded-xl">
+            <iframe
+              src={jobDetails?.ipfsUrl}
+              title="PDF Preview"
+              className="w-full h-[300px] sm:h-[400px] md:h-[600px] rounded-lg border border-gray-200 shadow-inner"
+            />
+          </div>
+        </div>
+
+        {/* Action Button */}
+        <div className="text-center">
+          <button 
+            onClick={() => setSuccessJobDetails(null)} 
+            className="w-full sm:w-auto bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 sm:px-8 py-2 sm:py-3 rounded-lg font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 shadow-lg hover:shadow-xl text-sm sm:text-base"
+          >
+            Submit Another Print Job
+          </button>
+        </div>
+      </div>
     </div>
   );
 
@@ -211,123 +299,125 @@ function App() {
   }, [uploadUrl]);
 
   return (
-    <div className="container mx-auto p-4">
+    <div className="container mx-auto px-4 py-6">
       {successJobDetails ? (
         <SuccessPage jobDetails={successJobDetails} />
       ) : (
-        <>
-          <h1 className="text-3xl font-bold mb-6">Print Job Upload</h1>
-          <div className="space-y-4">
-            <div className="form-group">
-              <label htmlFor="file" className="block mb-1 font-medium">Select File:</label>
-              <input
-                type="file"
-                id="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="border border-gray-300 p-2 rounded-md w-full"
-                accept=".pdf,.doc,.docx"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="copies" className="block mb-1 font-medium">Number of Copies:</label>
-              <input
-                type="number"
-                id="copies"
-                min="1"
-                value={printDetails.copies}
-                onChange={(e) => handlePrintDetailsChange('copies', parseInt(e.target.value))}
-                className="border border-gray-300 p-2 rounded-md w-full"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="colorMode" className="block mb-1 font-medium">Color Mode:</label>
-              <select
-                id="colorMode"
-                value={printDetails.colorMode}
-                onChange={(e) => handlePrintDetailsChange('colorMode', e.target.value)}
-                className="border border-gray-300 p-2 rounded-md w-full"
-              >
-                <option value="color">Color</option>
-                <option value="blackAndWhite">Black & White</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="paperSize" className="block mb-1 font-medium">Paper Size:</label>
-              <select
-                id="paperSize"
-                value={printDetails.paperSize}
-                onChange={(e) => handlePrintDetailsChange('paperSize', e.target.value)}
-                className="border border-gray-300 p-2 rounded-md w-full"
-              >
-                <option value="a4">A4</option>
-                <option value="letter">Letter</option>
-                <option value="legal">Legal</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="orientation" className="block mb-1 font-medium">Orientation:</label>
-              <select
-                id="orientation"
-                value={printDetails.orientation}
-                onChange={(e) => handlePrintDetailsChange('orientation', e.target.value)}
-                className="border border-gray-300 p-2 rounded-md w-full"
-              >
-                <option value="portrait">Portrait</option>
-                <option value="landscape">Landscape</option>
-              </select>
-            </div>
-
-            <div className="form-group">
-              <label className="flex items-center space-x-2">
+        <div className="max-w-2xl mx-auto">
+          <h1 className="text-2xl sm:text-3xl font-bold mb-6">Print Job Upload</h1>
+          <div className="space-y-4 bg-white p-4 sm:p-6 rounded-xl shadow-lg">
+            {/* Form groups */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="form-group col-span-1 sm:col-span-2">
+                <label htmlFor="file" className="block mb-1 font-medium text-sm sm:text-base">Select File:</label>
                 <input
-                  type="checkbox"
-                  checked={printDetails.doubleSided}
-                  onChange={(e) => handlePrintDetailsChange('doubleSided', e.target.checked)}
-                  className="rounded-md"
+                  type="file"
+                  id="file"
+                  ref={fileInputRef}
+                  onChange={handleFileChange}
+                  className="border border-gray-300 p-2 rounded-md w-full text-sm sm:text-base"
+                  accept=".pdf,.doc,.docx"
                 />
-                <span className="font-medium">Double-Sided</span>
-              </label>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="copies" className="block mb-1 font-medium text-sm sm:text-base">Number of Copies:</label>
+                <input
+                  type="number"
+                  id="copies"
+                  min="1"
+                  value={printDetails.copies}
+                  onChange={(e) => handlePrintDetailsChange('copies', parseInt(e.target.value))}
+                  className="border border-gray-300 p-2 rounded-md w-full text-sm sm:text-base"
+                />
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="colorMode" className="block mb-1 font-medium text-sm sm:text-base">Color Mode:</label>
+                <select
+                  id="colorMode"
+                  value={printDetails.colorMode}
+                  onChange={(e) => handlePrintDetailsChange('colorMode', e.target.value)}
+                  className="border border-gray-300 p-2 rounded-md w-full text-sm sm:text-base"
+                >
+                  <option value="color">Color</option>
+                  <option value="blackAndWhite">Black & White</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="paperSize" className="block mb-1 font-medium text-sm sm:text-base">Paper Size:</label>
+                <select
+                  id="paperSize"
+                  value={printDetails.paperSize}
+                  onChange={(e) => handlePrintDetailsChange('paperSize', e.target.value)}
+                  className="border border-gray-300 p-2 rounded-md w-full text-sm sm:text-base"
+                >
+                  <option value="a4">A4</option>
+                  <option value="letter">Letter</option>
+                  <option value="legal">Legal</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label htmlFor="orientation" className="block mb-1 font-medium text-sm sm:text-base">Orientation:</label>
+                <select
+                  id="orientation"
+                  value={printDetails.orientation}
+                  onChange={(e) => handlePrintDetailsChange('orientation', e.target.value)}
+                  className="border border-gray-300 p-2 rounded-md w-full text-sm sm:text-base"
+                >
+                  <option value="portrait">Portrait</option>
+                  <option value="landscape">Landscape</option>
+                </select>
+              </div>
+
+              <div className="form-group">
+                <label className="flex items-center space-x-2">
+                  <input
+                    type="checkbox"
+                    checked={printDetails.doubleSided}
+                    onChange={(e) => handlePrintDetailsChange('doubleSided', e.target.checked)}
+                    className="rounded-md"
+                  />
+                  <span className="font-medium">Double-Sided</span>
+                </label>
+              </div>
             </div>
 
+            {/* Buttons */}
             {showFinishButton ? (
-              <button onClick={handleFinishClick} className="bg-green-500 text-white px-4 py-2 rounded-md">
+              <button 
+                onClick={handleFinishClick} 
+                className="w-full sm:w-auto bg-green-500 text-white px-6 py-2 rounded-md text-sm sm:text-base"
+              >
                 Finish
               </button>
             ) : !showPayment && (
-              <div className="flex space-x-4">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <button
                   onClick={handleUploadAndPreparePayment}
                   disabled={!file || loading}
-                  className={`bg-blue-500 text-white px-4 py-2 rounded-md ${loading ? 'opacity-50 cursor-not-allowed' : ''}`}
+                  className={`w-full sm:w-auto bg-blue-500 text-white px-6 py-2 rounded-md text-sm sm:text-base
+                    ${loading ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
                 >
                   {loading ? 'Processing...' : 'Go for Payment'}
                 </button>
-                <button
-                  onClick={handlePreview}
-                  disabled={!uploadUrl}
-                  className={`bg-blue-500 text-white px-4 py-2 rounded-md 
-                    ${!uploadUrl ? 'opacity-50 cursor-not-allowed' : 'hover:bg-blue-600'}`}
-                >
-                  Preview Document
-                </button>
+                
               </div>
             )}
 
+            {/* Payment Section */}
             {showPayment && (
-              <div className="payment-section">
-                <h3 className="text-xl font-medium mb-2">Complete Payment</h3>
-                <form id="razorpay-form">
+              <div className="payment-section mt-6">
+                <h3 className="text-xl font-medium mb-4">Complete Payment</h3>
+                <form id="razorpay-form" className="w-full">
                   {/* Razorpay button will be injected here */}
                 </form>
               </div>
             )}
           </div>
-        </>
+        </div>
       )}
     </div>
   );
