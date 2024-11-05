@@ -407,24 +407,26 @@ const MergeFiles = () => {
             {showMergeOptions && (
               <div className="mt-6 space-y-4">
                 <h3 className="text-2xl font-bold mb-4">Merged PDF Options</h3>
-                <button 
-                  onClick={handleDownload} 
-                  className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-                >
-                  View Merged PDF
-                </button>
-                <button 
-                  onClick={handleDownloadFile} 
-                  className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-                >
-                  Download Merged PDF
-                </button>
-                <button 
-                  onClick={handlePrintOption} 
-                  className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-                >
-                  Print Document
-                </button>
+                <div className="flex flex-col gap-4">
+                  <button 
+                    onClick={handleDownload} 
+                    className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                  >
+                    View Merged PDF
+                  </button>
+                  <button 
+                    onClick={handleDownloadFile} 
+                    className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                  >
+                    Download Merged PDF
+                  </button>
+                  <button 
+                    onClick={handlePrintOption} 
+                    className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                  >
+                    Print Document
+                  </button>
+                </div>
               </div>
             )}
           </div>
@@ -672,18 +674,20 @@ const ConvertDocument = () => {
             {convertedFileUrl && (
               <div className="mt-6 space-y-4">
                 <h3 className="text-2xl font-bold mb-4">Converted PDF</h3>
-                <button 
-                  onClick={handleDownload} 
-                  className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-                >
-                  View Converted PDF
-                </button>
-                <button 
-                  onClick={handlePrint} 
-                  className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
-                >
-                  Print Document
-                </button>
+                <div className="flex flex-col gap-4">
+                  <button 
+                    onClick={handleDownload} 
+                    className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                  >
+                    View Converted PDF
+                  </button>
+                  <button 
+                    onClick={handlePrint} 
+                    className="btn btn-primary w-full py-3 px-4 text-lg font-semibold rounded-lg shadow-md bg-blue-500 hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                  >
+                    Print Document
+                  </button>
+                </div>
               </div>
             )}
           </div>
