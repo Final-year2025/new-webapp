@@ -1,0 +1,52 @@
+.nav-logo {
+  margin-left: -10rem;
+  font-size: 1.5rem;
+  font-weight: bold;
+  color: var(--color-primary);
+  display: flex;
+  align-items: center;
+}
+
+.nav-logo span {
+  margin-right: 0.5rem;
+}
+
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  padding: 0 1rem;
+}
+
+.container {
+  padding: 1rem;
+}
+
+/* Responsive Styles */
+@media (max-width: 768px) {
+  .nav-logo {
+    margin-left: -5rem;
+    font-size: 1.2rem;
+  }
+
+  body {
+    padding: 0 0.5rem;
+  }
+
+  .container {
+    padding: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .nav-logo {
+    font-size: 1rem;
+  }
+
+  body {
+    padding: 0 0.25rem;
+  }
+
+  .container {
+    padding: 0.25rem;
+  }
+}
